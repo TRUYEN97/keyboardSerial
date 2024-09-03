@@ -1,5 +1,5 @@
-uint8_t const cols[] = { 2, 3, 4 };
-uint8_t const rows[] = { 5, 6, 7, 8, 9, 10, 11 };
+uint8_t const cols[] = { 2, 3, 4, 5, 6 };
+uint8_t const rows[] = { 7, 8, 9, 10, 11 };
 void setup() {
   // put your setup code here, to run once:
   for (const uint8_t &pin : cols) {
