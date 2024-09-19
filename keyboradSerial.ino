@@ -1,7 +1,10 @@
 uint8_t const cols[] = { 2, 3, 4, 5, 6 };
-uint8_t const rows[] = { 7, 8, 9, 10, 11 };
+uint8_t const rows[] = { 7, 8, 9, 10, 11, 12 };
+uint8_t const ledPin = 22;
 void setup() {
   // put your setup code here, to run once:
+  pinMode(ledPin, OUTPUT);
+  digitalWrite(ledPin, 0);
   for (const uint8_t &pin : cols) {
     pinMode(pin, OUTPUT);
     digitalWrite(pin, 1);
@@ -26,9 +29,9 @@ boolean isTimeOut(unsigned long &time, const unsigned int &timeOut) {
 }
 
 boolean valueOf(uint8_t const &pin, boolean status = true) {
-  if (digitalRead(pin)) {
+  if (!digitalRead(pin)) {
     delay(30);
-    if (digitalRead(pin)) {
+    if (!digitalRead(pin)) {
       return status;
     }
   }
@@ -39,22 +42,36 @@ String valueString = "";
 String tempValue = "";
 unsigned long checkTime = millis();
 char a, b;
+void readSerial() {
+  if (Serial.available()) {
+    String line = Serial.readStringUntil('\n');
+    line.trim();
+    if (line.equalsIgnoreCase("isConnect")) {
+      Serial.println("isConnect");
+    }
+  }
+}
 void loop() {
-  if (!valueString.equals(tempValue)
-      && !tempValue.isEmpty()
-      && isTimeOut(checkTime, 500)) {
-    Serial.println(tempValue);
+  readSerial();
+  if (!valueString.equals(tempValue) && isTimeOut(checkTime, 50)){
+    if (!tempValue.isEmpty()) {
+      Serial.println(tempValue);
+      digitalWrite(ledPin, 1);
+      delay(100);
+      digitalWrite(ledPin, 0);
+    }
     valueString = tempValue;
   }
+     
   ////////////////////////////
   a = 'A';
   tempValue = "";
   for (const uint8_t &colPin : cols) {
     digitalWrite(colPin, 0);
     b = '1';
-    for (const uint8_t &rowPin : cols) {
-      if (valueOf(rowPin, 0)) {
-        if (a > 'A' || b > '1') {
+    for (const uint8_t &rowPin : rows) {
+      if (valueOf(rowPin)) {
+        if (!tempValue.isEmpty()) {
           tempValue += '-';
         }
         tempValue += a;
